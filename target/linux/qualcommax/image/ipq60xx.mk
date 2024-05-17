@@ -47,7 +47,7 @@ define Device/jdc_ax1800-pro
 	IMAGES += kernel.bin rootfs.bin factory.bin
 	IMAGE/kernel.bin := append-kernel
 	IMAGE/rootfs.bin := append-rootfs | pad-rootfs | pad-to $$(BLOCKSIZE)
-	IMAGE/factory.bin := append-kernel | pad-to $$$${KERNEL_SIZE}  |  append-rootfs | append-metadata
+	IMAGE/factory.bin := append-kernel | pad-to $$$${KERNEL_SIZE} | append-rootfs | append-metadata
 endef
 TARGET_DEVICES += jdc_ax1800-pro
 
