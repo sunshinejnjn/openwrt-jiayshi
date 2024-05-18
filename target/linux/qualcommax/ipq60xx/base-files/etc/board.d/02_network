@@ -15,13 +15,13 @@ ipq60xx_setup_interfaces()
 		ucidef_set_interfaces_lan_wan "lan1 lan2" "wan"
 		;;
 	glinet,gl-ax1800)
-		ucidef_set_interfaces_lan_wan "eth1 eth2 eth3 eth4" "eth0"
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3 lan4" "wan"
 		;;
 	glinet,gl-axt1800)
-		ucidef_set_interfaces_lan_wan "eth1 eth2" "eth0"
+		ucidef_set_interfaces_lan_wan "lan1 lan2" "wan"
 		;;
 	jdc,ax1800-pro)
-		ucidef_set_interfaces_lan_wan "eth0 eth1 eth2" "eth3"
+		ucidef_set_interfaces_lan_wan "lan1 lan2 lan3" "wan"
 		;;
 	netgear,wax214)
 		ucidef_set_interfaces_lan_wan "lan"
