@@ -1,11 +1,13 @@
 This repository is for compiling firmware (openwrt) for a specific IPQ60xx device: JDC-AX1800-Pro by JD Cloud. 
-It is forked from jiay-shi's repo, merged with some patches and regulations from https://github.com/aiamadeus/openwrt.git:ipq-gl as well as https://github.com/openwrt/openwrt.git:main as upstreams.
+It is forked from jiay-shi's repo, merged with some patches and regulations from https://github.com/aiamadeus/openwrt.git:ipq-gl as well as https://github.com/openwrt/openwrt.git:main as upstream.
+
 Currently, the ipq60xx-devel branch is working.
+Both Ethernet and WIFI (ath11k) are **working** fine, but **w/out nss**.
+The small (no LUCI) build is a minimal-sized build, suitable for recovery use.
+The "full" build comes with LUCI, dnsmasq-full, ip-full, wpad(full), openssl, strongswan, some netfilter, and USB kmods.
 
 ========================================================================
-
-**No bullshit**, no 3rd party (besides sources from openwrt/openwrt and necessary hardware drivers) packages.
-*No customized style*, no nothing customized.
+RootFS space problem:
 
 **It is suggested to use a mounted fs as *overlay* for opkg packages.** This can be done by using p27 (storage) or replacing it with 2 partitions and using the latter one (p28) as overlay.
 Some fdisk command seqence for reference (please note: factory fdisk will not output uuids, use openwrt fdisk (opkg install fdisk)):
@@ -55,7 +57,18 @@ However,  if you do want to replace the partition table (for a larger rootfs par
 **You should have uboot replaced (such as with *00_jdc-ax1800pro-u-boot.mbn*).** But as you are reading this and flashing openwrt, I'll consider it has been done.
 p1-p17 should be the same as the factory settings. p18 is the rootfs for the os (openwrt). This can be flashed with the uboot. **remember to have p18 *named* rootfs if modified!** p19 is the factory backof of rootfs, p22 is the rootfs_data partition. Therefore, at least the contents of p19, p21, and p23 shall be restored (by dd). You can do that by using a USB drive or using /tmp (ram).
 
-The *uboot* and the *partition table* file can be found in [the very first release](https://github.com/sunshinejnjn/openwrt-jiayshi/releases/tag/20240518_jdc_ax1800-pro) of this repo. 
+========================================================================
+Pre-compiled files:
+
+All released pre-compiled files contain **No bullshit**, no 3rd party (besides sources from openwrt/openwrt and necessary hardware drivers) packages.
+*No customized style*, no nothing *customized* comparing to openwrt snapshots packages, including bugs.
+
+Please find them [here in the releases](https://github.com/sunshinejnjn/openwrt-jiayshi/releases/).
+
+--
+An opkg source for an almost full list of kmods can be found [here](http://openwrt.717455.xyz/jdc_ax1800-pro_no-nss/targets/qualcommax/ipq60xx/packages/).
+
+The mentioned *uboot* and the *partition table* file can be found in [the very first release](https://github.com/sunshinejnjn/openwrt-jiayshi/releases/tag/20240518_jdc_ax1800-pro) of this repo. 
 
 ========================================================================
 
