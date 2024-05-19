@@ -10,7 +10,7 @@ The "full" build comes with LUCI, dnsmasq-full, ip-full, wpad(full), openssl, st
 RootFS space problem:
 
 **It is suggested to use a mounted fs as *overlay* for opkg packages.** This can be done by using p27 (storage) or replacing it with 2 partitions and using the latter one (p28) as overlay.
-Some fdisk command seqence for reference (please note: factory fdisk will not output uuids, use openwrt fdisk (opkg install fdisk)):
+Some fdisk command seqence for reference (please note: factory fdisk will not output uuids):
 ```
 fdisk /dev/mmcblk0
 x
