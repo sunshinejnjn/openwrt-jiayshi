@@ -1,3 +1,60 @@
+This repository is for compiling firmware (openwrt) for a specific IPQ60xx device: JDC-AX1800-Pro by JD Cloud. 
+It is forked from jiay-shi's repo, merged with some patches and regulations from https://github.com/aiamadeus/openwrt.git:ipq-gl as well as https://github.com/openwrt/openwrt.git:main as upstreams.
+Currently, the ipq60xx-devel branch is working.
+
+========================================================================
+
+**No bullshit**, no 3rd party (besides sources from openwrt/openwrt and necessary hardware drivers) packages.
+*No customized style*, no nothing customized.
+
+**It is suggested to use a mounted fs as *overlay* for opkg packages.** This can be done by using p27 (storage) or replacing it with 2 partitions and using the latter one (p28) as overlay.
+Some fdisk command seqence for reference (please note: factory fdisk will not output uuids, use openwrt fdisk (opkg install fdisk)):
+```
+fdisk /dev/mmcblk0
+x
+p
+>backup/save the output to some text file is recommended.
+>you'll find something like this at the end of the output: /dev/mmcblk0p27 2187298 240615390 238428093 [type] [uuid] [name]
+r
+d
+[press enter, 27]
+n
+[press enter, 27]
+[press enter, 2187298 or a number a little bigger than this such as the defaulted 2189312]
++100G 
+>or +50G for 64GB device
+n
+[press enter, 28]
+[press enter]
+[press enter]
+t
+27
+>enter or paste [type] string here
+x
+u
+27
+>enter or paste [uuid] string here
+n
+27
+>enter or paste [name] string (shall be storage) here
+r
+w
+>fdisk shall exit here, so we should be back to system shell prompt
+mkfs.ext4 /dev/mmcblk0p27
+>wait until done, expect 30~100 sec
+mkfs.ext4 /dev/mmcblk0p28
+>wait until done
+```
+Then you can use the *mount points* menu in the luci interface to mount p28 as overlay. You may have to refresh (Generate Config) first and reboot for the configuration to take effect.
+
+However,  if you do want to replace the partition table (for a larger rootfs partition).
+*02_mmcblk0_GPT_128g_2Grootfs_28parts.bin* is a GPT partition table (34 sectors at the beginning of the mmcblk0 device) for a 128G device. It has a 2GB rootfs partition instead of the original 60MB. **
+**Please DO BACKUP all your emmc partition content except p26+ before flashing/modifying your partition table, and flash (dd) the backed-up content back into modified partitions before reboot!**
+**You should have uboot replaced (such as with *00_jdc-ax1800pro-u-boot.mbn*).** But as you are reading this and flashing openwrt, I'll consider it has been done.
+p1-p17 should be the same as the factory settings. p18 is the rootfs for the os (openwrt). This can be flashed with the uboot. **remember to have p18 *named* rootfs if modified!** p19 is the factory backof of rootfs, p22 is the rootfs_data partition. Therefore, at least the contents of p19, p21, and p23 shall be restored (by dd). You can do that by using a USB drive or using /tmp (ram).
+
+========================================================================
+
 ![OpenWrt logo](include/logo.png)
 
 OpenWrt Project is a Linux operating system targeting embedded devices. Instead
