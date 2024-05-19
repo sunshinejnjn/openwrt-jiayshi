@@ -35,11 +35,12 @@ if [ "$1" = "TRUE" ]; then
   make -j$(nproc) V=s download
   IGNORE_ERRORS=1
   MAKE_PARA="-i"
-  make $MAKE_PARA -j$PROCC V=s clean world
 else
+  make defconfig
+  make -j$(nproc) V=s download
   MAKE_PARA=""
-  make $MAKE_PARA -j$PROCC V=s defconfig download clean world
 fi
 
+make $MAKE_PARA -j$PROCC V=s clean world
 #make -j$(($(nproc)+1)) V=s defconfig download clean world
 
