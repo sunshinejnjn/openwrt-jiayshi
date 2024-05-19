@@ -48,10 +48,14 @@ mkfs.ext4 /dev/mmcblk0p28
 Then you can use the *mount points* menu in the luci interface to mount p28 as overlay. You may have to refresh (Generate Config) first and reboot for the configuration to take effect.
 
 However,  if you do want to replace the partition table (for a larger rootfs partition).
-*02_mmcblk0_GPT_128g_2Grootfs_28parts.bin* is a GPT partition table (34 sectors at the beginning of the mmcblk0 device) for a 128G device. It has a 2GB rootfs partition instead of the original 60MB. **
+*02_mmcblk0_GPT_128g_2Grootfs_28parts.bin* is a GPT partition table (34 sectors at the beginning of the mmcblk0 device) for a 128G device. It has a 2GB rootfs partition instead of the original 60MB.
+
 **Please DO BACKUP all your emmc partition content except p26+ before flashing/modifying your partition table, and flash (dd) the backed-up content back into modified partitions before reboot!**
+
 **You should have uboot replaced (such as with *00_jdc-ax1800pro-u-boot.mbn*).** But as you are reading this and flashing openwrt, I'll consider it has been done.
 p1-p17 should be the same as the factory settings. p18 is the rootfs for the os (openwrt). This can be flashed with the uboot. **remember to have p18 *named* rootfs if modified!** p19 is the factory backof of rootfs, p22 is the rootfs_data partition. Therefore, at least the contents of p19, p21, and p23 shall be restored (by dd). You can do that by using a USB drive or using /tmp (ram).
+
+The *uboot* and the *partition table* file can be found in [the very first release](https://github.com/sunshinejnjn/openwrt-jiayshi/releases/tag/20240518_jdc_ax1800-pro) of this repo. 
 
 ========================================================================
 
