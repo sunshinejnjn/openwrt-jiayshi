@@ -608,12 +608,12 @@ void __init skb_recycler_init(void)
 void skb_recycler_print_all_lists(void)
 {
 	unsigned long flags;
+	struct sk_buff_head *h;
 	int cpu;
+	cpu = get_cpu();
+
 #ifdef CONFIG_SKB_RECYCLER_MULTI_CPU
 	int i;
-	struct sk_buff_head *h;
-
-	cpu = get_cpu();
 	spin_lock_irqsave(&glob_recycler.lock, flags);
 	for (i = 0; i < SKB_RECYCLE_MAX_SHARED_POOLS; i++)
 		skbuff_debugobj_print_skb_list((&glob_recycler.pool[i])->next,
