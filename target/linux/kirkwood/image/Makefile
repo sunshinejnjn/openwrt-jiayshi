@@ -182,6 +182,14 @@ define Device/ctera_c200-v1
 endef
 TARGET_DEVICES += ctera_c200-v1
 
+define Device/dlink_dns320l
+  DEVICE_VENDOR := D-Link
+  DEVICE_MODEL := DNS-320L
+  DEVICE_PACKAGES := kmod-ata-marvell-sata kmod-fs-ext4 kmod-gpio-button-hotplug \
+	kmod-usb-storage kmod-usb-ledtrig-usbport dns320l-mcu kmod-rtc-mv
+endef
+TARGET_DEVICES += dlink_dns320l
+
 define Device/endian_4i-edge-200
   DEVICE_VENDOR := Endian
   DEVICE_MODEL := 4i Edge 200
@@ -378,7 +386,8 @@ TARGET_DEVICES += zyxel_nsa310b
 define Device/zyxel_nsa310s
   DEVICE_VENDOR := ZyXEL
   DEVICE_MODEL := NSA310S
-  DEVICE_PACKAGES := kmod-ata-marvell-sata kmod-fs-ext4 kmod-gpio-button-hotplug
+  DEVICE_PACKAGES := kmod-ata-marvell-sata kmod-fs-ext4 \
+	kmod-gpio-button-hotplug kmod-rtc-mv
 endef
 TARGET_DEVICES += zyxel_nsa310s
 

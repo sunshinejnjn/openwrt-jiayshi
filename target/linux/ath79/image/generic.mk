@@ -682,7 +682,7 @@ define Device/buffalo_wzr_ar7161
   SOC := ar7161
   BUFFALO_PRODUCT := WZR-HP-AG300H
   DEVICE_PACKAGES := kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport \
-	kmod-leds-reset kmod-owl-loader
+	kmod-owl-loader
   IMAGE_SIZE := 32320k
   SUPPORTED_DEVICES += wzr-hp-ag300h
 endef
@@ -944,6 +944,22 @@ define Device/compex_wpj563
 endef
 TARGET_DEVICES += compex_wpj563
 
+define Device/dell_apl26-0ae
+  SOC := qca9550
+  DEVICE_VENDOR := Dell
+  DEVICE_MODEL := SonicPoint
+  DEVICE_VARIANT := ACe (APL26-0AE)
+  DEVICE_ALT0_VENDOR := SonicWall
+  DEVICE_ALT0_MODEL := SonicPoint
+  DEVICE_ALT0_VARIANT := ACe (APL26-0AE)
+  DEVICE_PACKAGES := ath10k-firmware-qca988x-ct kmod-ath10k-ct kmod-usb2
+  KERNEL_SIZE := 5952k
+  IMAGE_SIZE := 31680k
+  IMAGE/sysupgrade.bin = append-kernel | pad-to $$$$(BLOCKSIZE) | \
+	append-rootfs | pad-rootfs | check-size | append-metadata
+endef
+TARGET_DEVICES += dell_apl26-0ae
+
 define Device/devolo_dlan-pro-1200plus-ac
   SOC := ar9344
   DEVICE_VENDOR := devolo
@@ -1195,10 +1211,10 @@ define Device/dlink_dir-825-b1
   DEVICE_MODEL := DIR-825
   DEVICE_VARIANT := B1
   DEVICE_PACKAGES := kmod-usb-ohci kmod-usb2 kmod-usb-ledtrig-usbport \
-	kmod-leds-reset kmod-owl-loader kmod-switch-rtl8366s
+	kmod-owl-loader kmod-switch-rtl8366s
   IMAGE_SIZE := 7808k
   FACTORY_SIZE := 6144k
-  IMAGES += factory.bin
+# IMAGES += factory.bin
   IMAGE/factory.bin = append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | \
 	pad-rootfs | check-size $$$$(FACTORY_SIZE) | pad-to $$$$(FACTORY_SIZE) | \
 	append-string 01AP94-AR7161-RT-080619-00
@@ -1210,8 +1226,7 @@ define Device/dlink_dir-825-c1
   DEVICE_VENDOR := D-Link
   DEVICE_MODEL := DIR-825
   DEVICE_VARIANT := C1
-  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport kmod-leds-reset \
-	kmod-owl-loader
+  DEVICE_PACKAGES := kmod-usb2 kmod-usb-ledtrig-usbport kmod-owl-loader
   SUPPORTED_DEVICES += dir-825-c1
   IMAGE_SIZE := 15936k
   IMAGES := factory.bin sysupgrade.bin
@@ -1228,7 +1243,7 @@ define Device/dlink_dir-835-a1
   DEVICE_VENDOR := D-Link
   DEVICE_MODEL := DIR-835
   DEVICE_VARIANT := A1
-  DEVICE_PACKAGES := kmod-usb2 kmod-leds-reset kmod-owl-loader
+  DEVICE_PACKAGES := kmod-usb2 kmod-owl-loader
   SUPPORTED_DEVICES += dir-835-a1
   IMAGE_SIZE := 15936k
   IMAGES := factory.bin sysupgrade.bin
@@ -2094,7 +2109,6 @@ define Device/netgear_wndap360
   $(Device/netgear_generic)
   SOC := ar7161
   DEVICE_MODEL := WNDAP360
-  DEVICE_PACKAGES := kmod-leds-reset
   IMAGE_SIZE := 7744k
   BLOCKSIZE := 256k
   KERNEL := kernel-bin | append-dtb | gzip | uImage gzip
@@ -2515,7 +2529,7 @@ define Device/phicomm_k2t
   IMAGE_SIZE := 15744k
   IMAGE/sysupgrade.bin := append-kernel | append-rootfs | pad-rootfs | \
 	check-size | append-metadata
-  DEVICE_PACKAGES := kmod-leds-reset kmod-ath10k-ct-smallbuffers ath10k-firmware-qca9888-ct
+  DEVICE_PACKAGES := kmod-ath10k-ct-smallbuffers ath10k-firmware-qca9888-ct
 endef
 TARGET_DEVICES += phicomm_k2t
 
@@ -3014,7 +3028,7 @@ define Device/trendnet_tew-673gru
 	kmod-owl-loader kmod-switch-rtl8366s
   IMAGE_SIZE := 7808k
   FACTORY_SIZE := 6144k
-  IMAGES += factory.bin
+# IMAGES += factory.bin
   IMAGE/factory.bin = append-kernel | pad-to $$$$(BLOCKSIZE) | append-rootfs | \
 	pad-rootfs | check-size $$$$(FACTORY_SIZE) | pad-to $$$$(FACTORY_SIZE) | \
 	append-string AP94-AR7161-RT-080619-01

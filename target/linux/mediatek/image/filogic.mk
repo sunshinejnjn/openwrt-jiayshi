@@ -140,8 +140,7 @@ TARGET_DEVICES += acer_predator-w6
 define Device/adtran_smartrg
   DEVICE_VENDOR := Adtran
   DEVICE_DTS_DIR := ../dts
-  DEVICE_PACKAGES := e2fsprogs f2fsck mkf2fs kmod-hwmon-pwmfan \
-		     kmod-mt7915e kmod-mt7986-firmware mt7986-wo-firmware
+  DEVICE_PACKAGES := e2fsprogs f2fsck mkf2fs kmod-hwmon-pwmfan
   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 
@@ -149,6 +148,7 @@ define Device/smartrg_sdg-8612
 $(call Device/adtran_smartrg)
   DEVICE_MODEL := SDG-8612
   DEVICE_DTS := mt7986a-smartrg-SDG-8612
+  DEVICE_PACKAGES += kmod-mt7915e kmod-mt7986-firmware mt7986-wo-firmware
 endef
 TARGET_DEVICES += smartrg_sdg-8612
 
@@ -156,6 +156,7 @@ define Device/smartrg_sdg-8614
 $(call Device/adtran_smartrg)
   DEVICE_MODEL := SDG-8614
   DEVICE_DTS := mt7986a-smartrg-SDG-8614
+  DEVICE_PACKAGES += kmod-mt7915e kmod-mt7986-firmware mt7986-wo-firmware
 endef
 TARGET_DEVICES += smartrg_sdg-8614
 
@@ -163,7 +164,7 @@ define Device/smartrg_sdg-8622
 $(call Device/adtran_smartrg)
   DEVICE_MODEL := SDG-8622
   DEVICE_DTS := mt7986a-smartrg-SDG-8622
-  DEVICE_PACKAGES += kmod-mt7915e kmod-mt7915-firmware
+  DEVICE_PACKAGES += kmod-mt7915e kmod-mt7915-firmware kmod-mt7986-firmware mt7986-wo-firmware
 endef
 TARGET_DEVICES += smartrg_sdg-8622
 
@@ -171,9 +172,25 @@ define Device/smartrg_sdg-8632
 $(call Device/adtran_smartrg)
   DEVICE_MODEL := SDG-8632
   DEVICE_DTS := mt7986a-smartrg-SDG-8632
-  DEVICE_PACKAGES += kmod-mt7915e kmod-mt7915-firmware
+  DEVICE_PACKAGES += kmod-mt7915e kmod-mt7915-firmware kmod-mt7986-firmware mt7986-wo-firmware
 endef
 TARGET_DEVICES += smartrg_sdg-8632
+
+define Device/smartrg_sdg-8733
+$(call Device/adtran_smartrg)
+  DEVICE_MODEL := SDG-8733
+  DEVICE_DTS := mt7988a-smartrg-SDG-8733
+  DEVICE_PACKAGES += kmod-mt7996-firmware kmod-phy-aquantia kmod-usb3
+endef
+TARGET_DEVICES += smartrg_sdg-8733
+
+define Device/smartrg_sdg-8734
+$(call Device/adtran_smartrg)
+  DEVICE_MODEL := SDG-8734
+  DEVICE_DTS := mt7988a-smartrg-SDG-8734
+  DEVICE_PACKAGES += kmod-mt7996-firmware kmod-phy-aquantia kmod-sfp kmod-usb3
+endef
+TARGET_DEVICES += smartrg_sdg-8734
 
 define Device/asus_rt-ax59u
   DEVICE_VENDOR := ASUS
@@ -934,6 +951,30 @@ define Device/netgear_wax220
 endef
 TARGET_DEVICES += netgear_wax220
 
+define Device/nokia_ea0326gmp
+  DEVICE_VENDOR := Nokia
+  DEVICE_MODEL := EA0326GMP
+  DEVICE_DTS := mt7981b-nokia-ea0326gmp
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware
+  UBINIZE_OPTS := -E 5
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  KERNEL_IN_UBI := 1
+  UBOOTENV_IN_UBI := 1
+  IMAGES := sysupgrade.itb
+  KERNEL_INITRAMFS_SUFFIX := -recovery.itb
+  KERNEL := kernel-bin | gzip
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+        fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb with-initrd | pad-to 64k
+  IMAGE/sysupgrade.itb := append-kernel | \
+        fit gzip $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb external-static-with-rootfs | append-metadata
+  ARTIFACTS := preloader.bin bl31-uboot.fip
+  ARTIFACT/preloader.bin := mt7981-bl2 spim-nand-ddr3
+  ARTIFACT/bl31-uboot.fip := mt7981-bl31-uboot nokia_ea0326gmp
+endef
+TARGET_DEVICES += nokia_ea0326gmp
+
 define Device/openembed_som7981
   DEVICE_VENDOR := OpenEmbed
   DEVICE_MODEL := SOM7981
@@ -1034,6 +1075,16 @@ define Device/routerich_ax3000
 endef
 TARGET_DEVICES += routerich_ax3000
 
+define Device/ruijie_rg-x60-pro
+  DEVICE_VENDOR := Ruijie
+  DEVICE_MODEL := RG-X60 Pro
+  DEVICE_DTS := mt7986a-ruijie-rg-x60-pro
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7986-firmware mt7986-wo-firmware
+  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+endef
+TARGET_DEVICES += ruijie_rg-x60-pro
+
 define Device/tplink_tl-xdr-common
   DEVICE_VENDOR := TP-Link
   DEVICE_DTS_DIR := ../dts
@@ -1109,6 +1160,17 @@ define Device/unielec_u7981-01-nand
   $(call Device/unielec_u7981-01)
 endef
 TARGET_DEVICES += unielec_u7981-01-nand
+
+define Device/wavlink_wl-wn586x3
+  DEVICE_VENDOR := WAVLINK
+  DEVICE_MODEL := WL-WN586X3
+  DEVICE_DTS := mt7981b-wavlink-wl-wn586x3
+  DEVICE_DTS_DIR := ../dts
+  DEVICE_DTS_LOADADDR := 0x47000000
+  IMAGE_SIZE := 15424k
+  DEVICE_PACKAGES := kmod-mt7915e kmod-mt7981-firmware mt7981-wo-firmware
+endef
+TARGET_DEVICES += wavlink_wl-wn586x3
 
 define Device/xiaomi_mi-router-ax3000t
   DEVICE_VENDOR := Xiaomi

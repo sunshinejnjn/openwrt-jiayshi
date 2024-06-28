@@ -7,7 +7,13 @@ include ./common-tp-link.mk
 
 DEFAULT_SOC := mt7621
 
-DEVICE_VARS += ELECOM_HWNAME LINKSYS_HWNAME DLINK_HWID
+DEVICE_VARS += BUFFALO_TRX_MAGIC ELECOM_HWNAME LINKSYS_HWNAME DLINK_HWID
+
+define Image/Prepare
+	# For UBI we want only one extra block
+	rm -f $(KDIR)/ubi_mark
+	echo -ne '\xde\xad\xc0\xde' > $(KDIR)/ubi_mark
+endef
 
 define Build/append-dlink-covr-metadata
 	echo -ne '{"supported_devices": "$(1)", "firmware": "' > $@metadata.tmp
@@ -99,13 +105,15 @@ endef
 
 define Build/znet-header
 	$(eval version=$(word 1,$(1)))
+	$(eval magic=$(if $(word 2,$(1)),$(word 2,$(1)),ZNET))
+	$(eval hdrlen=$(if $(word 3,$(1)),$(word 3,$(1)),0x30))
 	( \
 		data_size_crc="$$(dd if=$@ 2>/dev/null | gzip -c | \
 			tail -c 8 | od -An -N4 -tx4 --endian big | tr -d ' \n')"; \
 		payload_len="$$(dd if=$@ bs=4 count=1 skip=1 2>/dev/null | od -An -tdI --endian big | tr -d ' \n')"; \
 		payload_size_crc="$$(dd if=$@ ibs=1 count=$$payload_len 2>/dev/null | gzip -c | \
 			tail -c 8 | od -An -N4 -tx4 --endian big | tr -d ' \n')"; \
-		echo -ne "\x5A\x4E\x45\x54" | dd bs=4 count=1 conv=sync 2>/dev/null; \
+		echo -ne "$(magic)" | dd bs=4 count=1 conv=sync 2>/dev/null; \
 		echo -ne "$$(printf '%08x' $$(stat -c%s $@) | fold -s2 | xargs -I {} echo \\x{} | tac | tr -d '\n')" | \
 			dd bs=4 count=1 conv=sync 2>/dev/null; \
 		echo -ne "$$(echo $$data_size_crc | sed 's/../\\x&/g')" | \
@@ -114,7 +122,7 @@ define Build/znet-header
 			dd bs=4 count=1 conv=sync 2>/dev/null; \
 		echo -ne "\x12\x34\x56\x78" | dd bs=4 count=1 conv=sync 2>/dev/null; \
 		echo -ne "$(version)" | dd bs=28 count=1 conv=sync 2>/dev/null; \
-		dd if=/dev/zero bs=262096 count=1 conv=sync 2>/dev/null | tr "\000" "\377"; \
+		dd if=/dev/zero bs=$$((0x40000 - $(hdrlen))) count=1 conv=sync 2>/dev/null | tr "\000" "\377"; \
 		cat $@; \
 	) > $@.new
 	mv $@.new $@
@@ -531,6 +539,46 @@ define Device/buffalo_wsr-2533dhpl
 endef
 TARGET_DEVICES += buffalo_wsr-2533dhpl
 
+define Device/buffalo_wsr-2533dhplx
+  $(Device/dsa-migration)
+  DEVICE_VENDOR := Buffalo
+  DEVICE_PACKAGES := kmod-mt7615-firmware -uboot-envtools
+  BUFFALO_TAG_PLATFORM := MTK
+  BUFFALO_TAG_VERSION := 9.99
+  BUFFALO_TAG_MINOR := 9.99
+  BLOCKSIZE := 128k
+  PAGESIZE := 2048
+  UBINIZE_OPTS := -E 5
+  KERNEL_SIZE := 6144k
+  IMAGES += factory.bin factory-uboot.bin
+  IMAGE/factory.bin = append-ubi | \
+	buffalo-trx $$$$(BUFFALO_TRX_MAGIC) $$$$@ $(KDIR)/ubi_mark |\
+	buffalo-enc $$(DEVICE_MODEL) 9.99 -l | \
+	buffalo-tag-dhp $$(DEVICE_MODEL) JP JP | buffalo-enc-tag -l | \
+	buffalo-dhp-image
+  IMAGE/factory-uboot.bin := append-ubi | \
+	buffalo-trx $$$$(BUFFALO_TRX_MAGIC) $$$$@ $(KDIR)/ubi_mark | append-metadata
+  IMAGE/sysupgrade.bin := \
+	buffalo-trx $$$$(BUFFALO_TRX_MAGIC) $(KDIR)/tmp/$$(DEVICE_NAME).null | \
+	sysupgrade-tar kernel=$$$$@ | append-metadata
+endef
+
+define Device/buffalo_wsr-2533dhpl2
+  $(Device/buffalo_wsr-2533dhplx)
+  DEVICE_MODEL := WSR-2533DHPL2
+  BUFFALO_TRX_MAGIC := 0x324c4850
+  IMAGE_SIZE := 62592k
+endef
+TARGET_DEVICES += buffalo_wsr-2533dhpl2
+
+define Device/buffalo_wsr-2533dhpls
+  $(Device/buffalo_wsr-2533dhplx)
+  DEVICE_MODEL := WSR-2533DHPLS
+  BUFFALO_TRX_MAGIC := 0x534c4844
+  IMAGE_SIZE := 24576k
+endef
+TARGET_DEVICES += buffalo_wsr-2533dhpls
+
 define Device/buffalo_wsr-600dhp
   $(Device/dsa-migration)
   $(Device/uimage-lzma-loader)
@@ -768,6 +816,14 @@ define Device/dlink_dir-1960-a1
   DEVICE_VARIANT := A1
 endef
 TARGET_DEVICES += dlink_dir-1960-a1
+
+define Device/dlink_dir-2055-a1
+  $(Device/dlink_dir_nand_128m)
+  DEVICE_PACKAGES += -kmod-usb-ledtrig-usbport
+  DEVICE_MODEL := DIR-2055
+  DEVICE_VARIANT := A1
+endef
+TARGET_DEVICES += dlink_dir-2055-a1
 
 define Device/dlink_dir-2150-a1
   $(Device/dlink_dir_nand_128m)
@@ -1117,6 +1173,27 @@ define Device/elecom_wrc-2533gst2
   ELECOM_HWNAME := WRC-2533GST2
 endef
 TARGET_DEVICES += elecom_wrc-2533gst2
+
+define Device/elecom_wrc-x1800gs
+  $(Device/nand)
+  DEVICE_VENDOR := ELECOM
+  DEVICE_MODEL := WRC-X1800GS
+  KERNEL := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb | \
+	znet-header 4.04(XVF.1)b90 COMC 0x68 | elecom-product-header WRC-X1800GS
+  KERNEL_INITRAMFS := kernel-bin | lzma | \
+	fit lzma $$(KDIR)/image-$$(firstword $$(DEVICE_DTS)).dtb
+  KERNEL_SIZE := 8192k
+  IMAGE_SIZE := 51456k
+ifneq ($(CONFIG_TARGET_ROOTFS_INITRAMFS),)
+  ARTIFACTS := initramfs-factory.bin
+  ARTIFACT/initramfs-factory.bin := append-image-stage initramfs-kernel.bin | \
+	znet-header 4.04(XVF.1)b90 COMC 0x68 | elecom-product-header WRC-X1800GS | \
+	check-size
+endif
+  DEVICE_PACKAGES := kmod-mt7915-firmware
+endef
+TARGET_DEVICES += elecom_wrc-x1800gs
 
 define Device/etisalat_s3
   $(Device/sercomm_dxx)
@@ -1739,7 +1816,7 @@ define Device/MikroTik
   DEVICE_PACKAGES := kmod-usb3 -uboot-envtools
   KERNEL_NAME := vmlinuz
   KERNEL := kernel-bin | append-dtb-elf
-  IMAGE/sysupgrade.bin := append-kernel | kernel2minor -s 1024 | \
+  IMAGE/sysupgrade.bin := append-kernel | yaffs-filesystem -L | \
 	pad-to $$$$(BLOCKSIZE) | append-rootfs | pad-rootfs | check-size | \
 	append-metadata
 endef
@@ -2070,6 +2147,16 @@ define Device/netis_wf2881
 	-uboot-envtools
 endef
 TARGET_DEVICES += netis_wf2881
+
+define Device/openfi_5pro
+  $(Device/dsa-migration)
+  IMAGE_SIZE := 65216k
+  DEVICE_VENDOR := OpenFi
+  DEVICE_MODEL := 5Pro 
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap kmod-usb3 \
+	kmod-sdhci-mt7620
+endef
+TARGET_DEVICES += openfi_5pro
 
 define Device/oraybox_x3a
   $(Device/dsa-migration)
@@ -2755,6 +2842,17 @@ define Device/wifire_s1500-nbn
   SERCOMM_SWVER := 2015
 endef
 TARGET_DEVICES += wifire_s1500-nbn
+
+define Device/winstars_ws-wn536p3
+  $(Device/dsa-migration)
+  $(Device/uimage-lzma-loader)
+  IMAGE_SIZE := 16064k
+  DEVICE_VENDOR := Winstars
+  DEVICE_MODEL := WS-WN536P3
+  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e kmod-mt7663-firmware-ap \
+	kmod-usb3 -uboot-envtools
+endef
+TARGET_DEVICES += winstars_ws-wn536p3
 
 define Device/winstars_ws-wn583a6
   $(Device/dsa-migration)

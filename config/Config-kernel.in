@@ -173,16 +173,6 @@ config KERNEL_KASAN
 	  Currently CONFIG_KASAN doesn't work with CONFIG_DEBUG_SLAB
 	  (the resulting kernel does not boot).
 
-config KERNEL_KASAN_EXTRA
-	bool "KAsan: extra checks"
-	depends on KERNEL_KASAN && KERNEL_DEBUG_KERNEL
-	help
-	  This enables further checks in the kernel address sanitizer, for now
-	  it only includes the address-use-after-scope check that can lead
-	  to excessive kernel stack usage, frame size warnings and longer
-	  compile time.
-	  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81715 has more
-
 config KERNEL_KASAN_VMALLOC
 	bool "Back mappings in vmalloc space with real shadow memory"
 	depends on KERNEL_KASAN
@@ -435,7 +425,6 @@ config KERNEL_DEBUG_INFO
 	  This will compile your kernel and modules with debug information.
 
 config KERNEL_DEBUG_INFO_BTF
-
 	bool "Enable additional BTF type information"
 	depends on !HOST_OS_MACOS
 	depends on KERNEL_DEBUG_INFO && !KERNEL_DEBUG_INFO_REDUCED
@@ -447,9 +436,13 @@ config KERNEL_DEBUG_INFO_BTF
 
 	  Required to run BPF CO-RE applications.
 
+config KERNEL_DEBUG_INFO_BTF_MODULES
+	def_bool y
+	depends on KERNEL_DEBUG_INFO_BTF
+
 config KERNEL_MODULE_ALLOW_BTF_MISMATCH
 	bool "Allow loading modules with non-matching BTF type info"
-	depends on KERNEL_DEBUG_INFO_BTF
+	depends on KERNEL_DEBUG_INFO_BTF_MODULES
 	help
 	  For modules whose split BTF does not match vmlinux, load without
 	  BTF rather than refusing to load. The default behavior with

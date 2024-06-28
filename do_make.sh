@@ -18,7 +18,7 @@
 #./scripts/feeds install -a
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-PROCC=$(nproc)
+PROCC="$(nproc)"
 echo "Trying to make using [ $PROCC ]  processes..."
 
 touch target/linux/*/Makefile
@@ -32,14 +32,19 @@ make menuconfig
 if [ "$1" = "TRUE" ]; then
   sed -i '/is not set/d' .config
   make defconfig
-  make -j$(nproc) V=s download
+  make -j$PROCC V=s download
   IGNORE_ERRORS=1
   MAKE_PARA="-i"
-  make $MAKE_PARA -j$PROCC V=s clean world
 else
+  make defconfig
+  make -j$PROCC V=s download
   MAKE_PARA=""
-  make $MAKE_PARA -j$PROCC V=s defconfig download clean world
 fi
 
+echo "========================================"
+echo "make $MAKE_PARA -j$PROCC V=s clean world"
+echo "Start MAKE WORLD...........-"
+sleep 3
+make $MAKE_PARA -j$PROCC V=s clean world
 #make -j$(($(nproc)+1)) V=s defconfig download clean world
 

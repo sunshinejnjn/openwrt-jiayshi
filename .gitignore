@@ -35,3 +35,5 @@ git-src
 .cproject
 .ccache
 .vscode*
+/*.log
+/rsync_vps6.sh

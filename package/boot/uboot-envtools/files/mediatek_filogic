@@ -82,6 +82,7 @@ dlink,aquila-pro-ai-m30-a1)
 h3c,magic-nx30-pro|\
 jcg,q30-pro|\
 netcore,n60|\
+nokia,ea0326gmp|\
 qihoo,360t7|\
 tplink,tl-xdr4288|\
 tplink,tl-xdr6086|\
@@ -108,6 +109,11 @@ routerich,ax3000)
 openembed,som7981)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x80000" "0x80000"
 	ubootenv_add_uci_sys_config "/dev/mtd3" "0x0" "0x100000" "0x100000"
+	;;
+smartrg,sdg-8733|\
+smartrg,sdg-8734)
+	local envdev=$(find_mmc_part "u-boot-env" "mmcblk0")
+	ubootenv_add_uci_config "$envdev" "0x0" "0x8000" "0x8000"
 	;;
 ubnt,unifi-6-plus)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x80000" "0x10000"
