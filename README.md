@@ -47,7 +47,7 @@ mkfs.ext4 /dev/mmcblk0p27
 mkfs.ext4 /dev/mmcblk0p28
 >wait until done
 ```
-Then you can use the *mount points* menu in the luci interface to mount p28 as overlay. You may have to refresh (Generate Config) first and reboot for the configuration to take effect.
+Then you can use the *mount points* menu in the luci interface to mount p28 as overlay. You may have to refresh (Generate Config) first and reboot for the configuration to take effect. Please note: you may want to copy content of present overlay onto the *future* overlay partition before doing this to keep settings. Or, you system will be *resetted* to init state as well as losing all your packages.
 
 However,  if you do want to replace the partition table (for a larger rootfs partition).
 *02_mmcblk0_GPT_128g_2Grootfs_28parts.bin* is a GPT partition table (34 sectors at the beginning of the mmcblk0 device) for a 128G device. It has a 2GB rootfs partition instead of the original 60MB.
