@@ -1,0 +1,23 @@
+# --- a/net/bridge/br_forward.c
+# +++ b/net/bridge/br_forward.c
+# @@ -271,7 +271,7 @@ static void maybe_deliver_addr(struct ne
+#  	if (skb->dev == p->dev && ether_addr_equal(src, addr))
+#  		return;
+ 
+# -	skb = skb_copy(skb, GFP_ATOMIC);
+# +	skb = pskb_copy(skb, GFP_ATOMIC);
+#  	if (!skb) {
+#  		DEV_STATS_INC(dev, tx_dropped);
+#  		return;
+--- a/include/linux/netdevice.h
++++ b/include/linux/netdevice.h
+@@ -2469,6 +2469,9 @@ struct net_device {
+ 
+ static inline bool netif_elide_gro(const struct net_device *dev)
+ {
++	if (1)
++		return true;
++
+ 	if (!(dev->features & NETIF_F_GRO) || dev->xdp_prog)
+ 		return true;
+ 	return false;
