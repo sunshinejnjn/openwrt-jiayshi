@@ -18,7 +18,7 @@
 #./scripts/feeds install -a
 
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-PROCC="$(nproc)"
+PROCC=$(expr $(nproc) - 1)
 echo "Trying to make using [ $PROCC ]  processes..."
 
 touch target/linux/*/Makefile
@@ -45,6 +45,7 @@ echo "========================================"
 echo "make $MAKE_PARA -j$PROCC V=s clean world"
 echo "Start MAKE WORLD...........-"
 sleep 3
-make $MAKE_PARA -j$PROCC V=s clean world
+#make $MAKE_PARA -j$PROCC V=s clean world
+ionice -c 3 nice -n 20 make -j $PROCC V=s CONFIG_DEBUG_SECTION_MISMATCH=y clean world 2>&1 | tee build.log
 #make -j$(($(nproc)+1)) V=s defconfig download clean world
 
