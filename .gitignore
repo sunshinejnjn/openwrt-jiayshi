@@ -37,3 +37,4 @@ git-src
 .vscode*
 /*.log
 /rsync_vps6.sh
+.config_full.old
